@@ -69,10 +69,23 @@ func Parse(rawMsg string) (m *Message, err error) {
 	}
 
 	splittedMessage := strings.SplitN(rawMsg, ";", 2)
-	if len(splittedMessage) == 0 {
+	if len(splittedMessage) < 2 {
 		err = errors.Errorf("message field not present")
 		return
 	}
+
+	m = new(Message)
+
+	infoSection := splittedMessage[0]
+	m.Message = splittedMessage[1]
+
+	splittedInfoSection := strings.SplitN(infoSection, ",", 5)
+	if len(splittedInfoSection) < 4 {
+		err = errors.Errorf("info section with not enought fields")
+		return
+	}
+
+	// CC: parse info section
 
 	return
 }
