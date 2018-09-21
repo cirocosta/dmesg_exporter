@@ -1,0 +1,5 @@
+7,160,424069,-;pci_root PNP0A03:00: host bridge window [io  0x0000-0x0cf7] (ignored)
+ SUBSYSTEM=acpi
+ DEVICE=+acpi:PNP0A03:00
+6,339,5140900,-;NET: Registered protocol family 10
+30,340,5690716,-;udevd[80]: starting version 181
