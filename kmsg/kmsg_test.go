@@ -8,49 +8,46 @@ import (
 )
 
 var _ = Describe("Kmsg", func() {
-	Describe("Parse", func () {
+	Describe("Parse", func() {
 		var (
 			input string
 			// message *kmsg.Message
 			err error
 		)
 
-		JustBeforeEach(func () {
+		JustBeforeEach(func() {
 			_, err = kmsg.Parse(input)
 		})
 
-		Context("with empty string", func () {
-			It("fails", func () {
+		Context("with empty string", func() {
+			It("fails", func() {
 				Expect(err).To(HaveOccurred())
 			})
 		})
 
-		Context("with malformed string", func () {
-			BeforeEach(func () {
-				input = "$$$$$something very malformed"
+		Context("with malformed string", func() {
+			Context("not having message field", func() {
+				BeforeEach(func() {
+					input = "aaaaaaaa"
+				})
+
+				It("fails", func() {
+					Expect(err).To(HaveOccurred())
+				})
 			})
 
-			It("fails", func () {
-				Expect(err).To(HaveOccurred())
+			Context("having message field", func() {
+				Context("not having enough fields in info section", func() {
+					BeforeEach(func() {
+						input = "aaaa;aaa"
+					})
+
+					It("fails", func() {
+						Expect(err).To(HaveOccurred())
+					})
+				})
 			})
 
-			It("describes the error", func () {
-				Expect(err).To(Equal(kmsg.ErrMessageInBadFormat))
-			})
-		})
-
-		Context("with metadata string", func () {
-			BeforeEach(func () {
-				input = " FOO=BAR"
-			})
-
-			It("fails", func () {
-				Expect(err).To(HaveOccurred())
-			})
-
-			It("describes the error", func () {
-				Expect(err).To(Equal(kmsg.ErrMessageMetadata))
-			})
 		})
 	})
 })

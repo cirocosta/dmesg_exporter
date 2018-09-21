@@ -3,8 +3,10 @@
 package kmsg
 
 import (
-	"errors"
+	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type Level uint8
@@ -42,11 +44,35 @@ type Message struct {
 	Metadata       map[string]string
 }
 
-var (
-	ErrMessageMetadata    = errors.New("metadata message continuation not supported")
-	ErrMessageInBadFormat = errors.New("unsuported format")
-)
-
+// Parse takes care of parsing a `kmsg` message acording to the kernel
+// documentation at https://www.kernel.org/doc/Documentation/ABI/testing/dev-kmsg.
+//
+// REGULAR MESSAGE:
+//
+//                  INFO												       MSG
+//     .------------------------------------------. .------.
+//    |																		         |			  |
+//    |																		         |			  |
+//    |	int	    int      int       char, <ignore>  | string |
+//    priority, seq, timestamp_us,flag[,..........];<message>
+//
+//
+// CONTINUATION:
+//
+//	    | key | value |
+//	/x7F<THIS>=<THATTT>
+//
 func Parse(rawMsg string) (m *Message, err error) {
+	if rawMsg == "" {
+		err = errors.Errorf("msg must not be empty")
+		return
+	}
+
+	splittedMessage := strings.SplitN(rawMsg, ";", 2)
+	if len(splittedMessage) == 0 {
+		err = errors.Errorf("message field not present")
+		return
+	}
+
 	return
 }
