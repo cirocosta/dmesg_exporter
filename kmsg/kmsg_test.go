@@ -54,10 +54,11 @@ var _ = Describe("Kmsg", func() {
 		Context("with known facility and priority", func () {
 			BeforeEach(func () {
 				prefix = 1
+				prefix = prefix | 1 << 3
 			})
 
 			It("returns the proper facility", func () {
-				Expect(facility).To(Equal(kmsg.FacilityKern))
+				Expect(facility).To(Equal(kmsg.FacilityUser))
 			})
 
 			It("returns the proper priorty", func () {

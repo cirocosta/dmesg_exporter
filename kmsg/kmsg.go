@@ -65,7 +65,7 @@ type Message struct {
 //	wrong priority given that the set of possible values has
 //	8 numbers.
 func DecodePrefix(prefix uint8) (priority Priority, facility Facility) {
-	const priortyMask uint8 = (1 << 4) - 1
+	const priortyMask uint8 = (1 << 3) - 1
 
 	facilityNum := prefix >> 3
 
