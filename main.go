@@ -3,16 +3,14 @@ package main
 import (
 	"os"
 
+	"github.com/cirocosta/dmesg_exporter/commands"
 	"github.com/jessevdk/go-flags"
 )
 
-var command struct {
-	TelemetryPath string   `long:"path" default:"/metrics" description:"path to serve metrics"`
-	ListenAddress string   `long:"address" default:":9000" description:"address to listen for prometheus scraping"`
-}
+var err error
 
-func main () {
-	_, err := flags.Parse(command)
+func main() {
+	_, err = flags.Parse(&commands.DmesgExporter)
 	if err != nil {
 		os.Exit(1)
 	}
