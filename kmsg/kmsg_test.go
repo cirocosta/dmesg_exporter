@@ -29,24 +29,40 @@ var _ = Describe("Kmsg", func() {
 		})
 	})
 
-	Describe("IsValidPriority", func() {
-		It("validates if the priority is valid or not", func() {
-			var (
-				valid = []uint8{
-					1, 2, 3, 4, 5, 6,
-				}
-				invalid = []uint8{
-					30, 31, 230, 111,
-				}
-			)
+	Describe("DecodePrefix", func () {
+		var (
+			prefix uint8
+			priority kmsg.Priority
+			facility kmsg.Facility
+		)
 
-			for _, priority := range valid {
-				Expect(kmsg.IsValidPriority(priority)).To(BeTrue())
-			}
+		JustBeforeEach(func () {
+			priority, facility = kmsg.DecodePrefix(prefix)
+		})
 
-			for _, priority := range invalid {
-				Expect(kmsg.IsValidPriority(priority)).ToNot(BeTrue())
-			}
+		Context("with unknown facility encoded in the prefix", func () {
+			BeforeEach(func () {
+				prefix = (1 << 6)
+			})
+
+			It("returns unknown facility", func () {
+				Expect(facility).To(Equal(kmsg.FacilityUnknown))
+				Expect(priority).To(Equal(kmsg.PriorityEmerg))
+			})
+		})
+
+		Context("with known facility and priority", func () {
+			BeforeEach(func () {
+				prefix = 1
+			})
+
+			It("returns the proper facility", func () {
+				Expect(facility).To(Equal(kmsg.FacilityKern))
+			})
+
+			It("returns the proper priorty", func () {
+				Expect(priority).To(Equal(kmsg.PriorityAlert))
+			})
 		})
 	})
 

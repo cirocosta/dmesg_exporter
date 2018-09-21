@@ -21,13 +21,7 @@ const (
 	PriorityNotice
 	PriorityInfo
 	PriorityDebug
-	priorityEnd
 )
-
-func IsValidPriority (priority uint8) (isValid bool) {
-	isValid = (priority < uint8(priorityEnd))
-	return
-}
 
 type Facility uint8
 
@@ -40,11 +34,12 @@ const (
 	FacilitySyslog
 	FacilityLpr
 	FacilityNews
-	facilityEnd
+
+	FacilityUnknown	// custom facility used to delimite those that we know
 )
 
 func IsValidFacility (facility uint8) (isValid bool) {
-	isValid = (facility < uint8(facilityEnd))
+	isValid = (facility < uint8(FacilityUnknown))
 	return
 }
 
@@ -60,15 +55,27 @@ type Message struct {
 // DecodePrefix extracts both priority and facility from a given
 // syslog(2) encoded prefix.
 //
-//	    facility    priority
-//      .--------------.-----.
-//      |              |     |
+//	   facility    priority
+//      .-----------.  .-----.
+//      |           |  |     |
 //	7  6  5  4  3  2  1  0    bits
 //
-//
-func DecodePrefix(prefix uint8) (priority Priority, facility Facility, err error) {
-	priority = Priority((prefix << (8-3)) >> 8-3)
-	facility = Facility(prefix >> 3)
+// ps.: the priority does not need to be verified because we're
+//      picking the first 3 bits and there's no way of having a
+//	wrong priority given that the set of possible values has
+//	8 numbers.
+func DecodePrefix(prefix uint8) (priority Priority, facility Facility) {
+	const priortyMask uint8 = (1 << 4) - 1
+
+	facilityNum := prefix >> 3
+
+	if !IsValidFacility(facilityNum) {
+		facility = FacilityUnknown
+	} else {
+		facility = Facility(facilityNum)
+	}
+
+	priority = Priority(prefix & priortyMask)
 
 	return
 }
