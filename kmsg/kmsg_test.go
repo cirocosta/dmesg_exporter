@@ -105,9 +105,9 @@ var _ = Describe("Kmsg", func() {
 
 	Describe("Parse", func() {
 		var (
-			input string
+			input   string
 			message *kmsg.Message
-			err error
+			err     error
 		)
 
 		JustBeforeEach(func() {
@@ -147,14 +147,14 @@ var _ = Describe("Kmsg", func() {
 						var expectedMessage *kmsg.Message
 
 						BeforeEach(func() {
-							input = "1,1,1,-,anything;message"
+							input = "1,1,100,-,anything;message"
 							expectedMessage = &kmsg.Message{
 								Facility:       kmsg.FacilityKern,
 								Flag:           kmsg.FlagDefault,
 								Message:        "message",
 								Priority:       kmsg.PriorityAlert,
 								SequenceNumber: 1,
-								Timestamp:      time.Unix(int64(1*time.Microsecond), 0),
+								Timestamp:      time.Unix(100/int64(time.Millisecond), 0),
 							}
 						})
 
@@ -208,6 +208,16 @@ var _ = Describe("Kmsg", func() {
 					Context("with malformed timestamp", func() {
 						BeforeEach(func() {
 							input = "1,1,c,d,e;message"
+						})
+
+						It("fails", func() {
+							Expect(err).To(HaveOccurred())
+						})
+					})
+
+					Context("with malformed flag", func() {
+						BeforeEach(func() {
+							input = "1,1,1,,e;message"
 						})
 
 						It("fails", func() {

@@ -72,7 +72,7 @@ func IsValidFacility(facility uint8) (isValid bool) {
 
 type Message struct {
 	Facility       Facility
-	Flag		Flag
+	Flag           Flag
 	Message        string
 	Metadata       map[string]string
 	Priority       Priority
@@ -173,9 +173,12 @@ func Parse(rawMsg string) (m *Message, err error) {
 
 	m.Timestamp = time.Unix(timestamp/int64(time.Millisecond), 0)
 
-	m.Flag = splittedInfoSection[3]
+	if len(splittedInfoSection[3]) != 1 {
+		err = errors.Errorf("flag must be a single char")
+		return
+	}
 
-	// CC: make sure that the prefix is well-formed
+	m.Flag = DecodeFlag(splittedInfoSection[3][0])
 
 	return
 }
