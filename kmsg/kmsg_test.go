@@ -8,6 +8,38 @@ import (
 )
 
 var _ = Describe("Kmsg", func() {
+	Describe("DecodeFlag", func () {
+		It("decodes the flag accordingly", func () {
+			var testCases = []struct{
+				input byte
+				expected kmsg.Flag
+			}{
+				{
+					input: 'c',
+					expected: kmsg.FlagFragment,
+				},
+				{
+					input: '-',
+					expected: kmsg.FlagDefault,
+				},
+				{
+					input: '+',
+					expected: kmsg.FlagFragmentFollowing,
+				},
+				{
+					input: 'z',
+					expected: kmsg.FlagUnknown,
+				},
+			}
+
+			var actual kmsg.Flag
+			for _, tc := range testCases {
+				actual = kmsg.DecodeFlag(tc.input)
+				Expect(actual).To(Equal(tc.expected))
+			}
+		})
+	})
+
 	Describe("IsValidFacility", func() {
 		It("validates if the facility is valid or not", func() {
 			var (
@@ -29,39 +61,39 @@ var _ = Describe("Kmsg", func() {
 		})
 	})
 
-	Describe("DecodePrefix", func () {
+	Describe("DecodePrefix", func() {
 		var (
-			prefix uint8
+			prefix   uint8
 			priority kmsg.Priority
 			facility kmsg.Facility
 		)
 
-		JustBeforeEach(func () {
+		JustBeforeEach(func() {
 			priority, facility = kmsg.DecodePrefix(prefix)
 		})
 
-		Context("with unknown facility encoded in the prefix", func () {
-			BeforeEach(func () {
+		Context("with unknown facility encoded in the prefix", func() {
+			BeforeEach(func() {
 				prefix = (1 << 6)
 			})
 
-			It("returns unknown facility", func () {
+			It("returns unknown facility", func() {
 				Expect(facility).To(Equal(kmsg.FacilityUnknown))
 				Expect(priority).To(Equal(kmsg.PriorityEmerg))
 			})
 		})
 
-		Context("with known facility and priority", func () {
-			BeforeEach(func () {
+		Context("with known facility and priority", func() {
+			BeforeEach(func() {
 				prefix = 1
-				prefix = prefix | 1 << 3
+				prefix = prefix | 1<<3
 			})
 
-			It("returns the proper facility", func () {
+			It("returns the proper facility", func() {
 				Expect(facility).To(Equal(kmsg.FacilityUser))
 			})
 
-			It("returns the proper priorty", func () {
+			It("returns the proper priorty", func() {
 				Expect(priority).To(Equal(kmsg.PriorityAlert))
 			})
 		})
@@ -106,38 +138,59 @@ var _ = Describe("Kmsg", func() {
 					})
 				})
 
-				Context("having enough fields in info section", func () {
-					Context("with malformed prefix", func () {
-						Context("being a string", func () {
-							BeforeEach(func () {
+				Context("having enough fields in info section", func() {
+					Context("with malformed prefix", func() {
+						Context("being a string", func() {
+							BeforeEach(func() {
 								input = "a,b,c,d,e;message"
 							})
 
-							It("fails", func () {
+							It("fails", func() {
 								Expect(err).To(HaveOccurred())
 							})
 						})
 
-						Context("being a int bigger than uint8", func () {
-							BeforeEach(func () {
+						Context("being a int bigger than uint8", func() {
+							BeforeEach(func() {
 								input = "999999999,b,c,d,e;message"
 							})
 
-							It("fails", func () {
+							It("fails", func() {
+								Expect(err).To(HaveOccurred())
+							})
+						})
+
+						Context("being a negative integer", func() {
+							BeforeEach(func() {
+								input = "-9999,b,c,d,e;message"
+							})
+
+							It("fails", func() {
 								Expect(err).To(HaveOccurred())
 							})
 						})
 					})
 
-					Context("with welformed prefix", func () {
-						BeforeEach(func () {
+					Context("with malformed sequence", func() {
+						BeforeEach(func() {
 							input = "1,b,c,d,e;message"
 						})
 
-						It("parses", func () {
-							Expect(err).NotTo(HaveOccurred())
+						It("fails", func () {
+							Expect(err).To(HaveOccurred())
 						})
 					})
+
+					Context("with malformed timestamp", func() {
+						BeforeEach(func() {
+							input = "1,1,c,d,e;message"
+						})
+
+						It("fails", func () {
+							Expect(err).To(HaveOccurred())
+						})
+					})
+
 				})
 			})
 

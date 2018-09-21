@@ -38,18 +38,46 @@ const (
 	FacilityUnknown // custom facility used to delimite those that we know
 )
 
+type Flag byte
+
+const (
+	FlagUnknown Flag = iota
+
+	FlagDefault           // -: default flag
+	FlagFragment          // c: indicates the fragment of a line
+	FlagFragmentFollowing // +: continuation of a fragment
+
+)
+
+// DecodeFlag decodes the raw byte flag into a type Flag object.
+func DecodeFlag(rawFlag byte) (flag Flag) {
+	switch rawFlag {
+	case '-':
+		flag = FlagDefault
+	case 'c':
+		flag = FlagFragment
+	case '+':
+		flag = FlagFragmentFollowing
+	default:
+		flag = FlagUnknown
+	}
+
+	return
+}
+
 func IsValidFacility(facility uint8) (isValid bool) {
 	isValid = (facility < uint8(FacilityUnknown))
 	return
 }
 
 type Message struct {
-	Priority       Priority
 	Facility       Facility
-	SequenceNumber int64
-	Timestamp      time.Time
+	Flag           byte
 	Message        string
 	Metadata       map[string]string
+	Priority       Priority
+	SequenceNumber int64
+	Timestamp      time.Time
 }
 
 // DecodePrefix extracts both priority and facility from a given
@@ -120,13 +148,30 @@ func Parse(rawMsg string) (m *Message, err error) {
 		return
 	}
 
-	_, err = strconv.ParseInt(splittedInfoSection[0], 10, 8)
+	prefix, err := strconv.ParseInt(splittedInfoSection[0], 10, 8)
 	if err != nil {
 		err = errors.Wrapf(err,
 			"couldn't convert priority to int")
 		return
 	}
 
+	m.Priority, m.Facility = DecodePrefix(uint8(prefix))
+
+	m.SequenceNumber, err = strconv.ParseInt(splittedInfoSection[1], 10, 64)
+	if err != nil {
+		err = errors.Wrapf(err,
+			"couldn't convert sequence number to int64")
+		return
+	}
+
+	timestamp, err := strconv.ParseInt(splittedInfoSection[2], 10, 64)
+	if err != nil {
+		err = errors.Wrapf(err,
+			"couldn't convert sequence number to int64")
+		return
+	}
+
+	m.Timestamp = time.Unix(timestamp/int64(time.Millisecond), 0)
 
 	// CC: make sure that the prefix is well-formed
 
