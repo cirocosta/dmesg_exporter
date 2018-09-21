@@ -120,14 +120,15 @@ func Parse(rawMsg string) (m *Message, err error) {
 		return
 	}
 
-	_, err = strconv.Atoi(splittedInfoSection[0])
+	_, err = strconv.ParseInt(splittedInfoSection[0], 10, 8)
 	if err != nil {
 		err = errors.Wrapf(err,
 			"couldn't convert priority to int")
 		return
 	}
 
-	// CC: parse info section
+
+	// CC: make sure that the prefix is well-formed
 
 	return
 }

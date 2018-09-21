@@ -95,7 +95,7 @@ var _ = Describe("Kmsg", func() {
 				})
 			})
 
-			Context("having message field", func() {
+			Context("having message and info fields", func() {
 				Context("not having enough fields in info section", func() {
 					BeforeEach(func() {
 						input = "aaaa;aaa"
@@ -105,17 +105,42 @@ var _ = Describe("Kmsg", func() {
 						Expect(err).To(HaveOccurred())
 					})
 				})
+
+				Context("having enough fields in info section", func () {
+					Context("with malformed prefix", func () {
+						Context("being a string", func () {
+							BeforeEach(func () {
+								input = "a,b,c,d,e;message"
+							})
+
+							It("fails", func () {
+								Expect(err).To(HaveOccurred())
+							})
+						})
+
+						Context("being a int bigger than uint8", func () {
+							BeforeEach(func () {
+								input = "999999999,b,c,d,e;message"
+							})
+
+							It("fails", func () {
+								Expect(err).To(HaveOccurred())
+							})
+						})
+					})
+
+					Context("with welformed prefix", func () {
+						BeforeEach(func () {
+							input = "1,b,c,d,e;message"
+						})
+
+						It("parses", func () {
+							Expect(err).NotTo(HaveOccurred())
+						})
+					})
+				})
 			})
 
-			Context("not having a valid priority field", func() {
-				BeforeEach(func() {
-					input = "aa;aa"
-				})
-
-				It("fails", func() {
-					Expect(err).To(HaveOccurred())
-				})
-			})
 		})
 	})
 })
