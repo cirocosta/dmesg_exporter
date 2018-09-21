@@ -72,7 +72,7 @@ func IsValidFacility(facility uint8) (isValid bool) {
 
 type Message struct {
 	Facility       Facility
-	Flag           byte
+	Flag		Flag
 	Message        string
 	Metadata       map[string]string
 	Priority       Priority
@@ -172,6 +172,8 @@ func Parse(rawMsg string) (m *Message, err error) {
 	}
 
 	m.Timestamp = time.Unix(timestamp/int64(time.Millisecond), 0)
+
+	m.Flag = splittedInfoSection[3]
 
 	// CC: make sure that the prefix is well-formed
 

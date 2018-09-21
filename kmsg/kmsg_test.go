@@ -1,38 +1,42 @@
 package kmsg_test
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"time"
 
 	"github.com/cirocosta/dmesg_exporter/kmsg"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Kmsg", func() {
-	Describe("DecodeFlag", func () {
-		It("decodes the flag accordingly", func () {
-			var testCases = []struct{
-				input byte
-				expected kmsg.Flag
-			}{
-				{
-					input: 'c',
-					expected: kmsg.FlagFragment,
-				},
-				{
-					input: '-',
-					expected: kmsg.FlagDefault,
-				},
-				{
-					input: '+',
-					expected: kmsg.FlagFragmentFollowing,
-				},
-				{
-					input: 'z',
-					expected: kmsg.FlagUnknown,
-				},
-			}
+	Describe("DecodeFlag", func() {
+		It("decodes the flag accordingly", func() {
+			var (
+				actual    kmsg.Flag
+				testCases = []struct {
+					input    byte
+					expected kmsg.Flag
+				}{
+					{
+						input:    'c',
+						expected: kmsg.FlagFragment,
+					},
+					{
+						input:    '-',
+						expected: kmsg.FlagDefault,
+					},
+					{
+						input:    '+',
+						expected: kmsg.FlagFragmentFollowing,
+					},
+					{
+						input:    'z',
+						expected: kmsg.FlagUnknown,
+					},
+				}
+			)
 
-			var actual kmsg.Flag
 			for _, tc := range testCases {
 				actual = kmsg.DecodeFlag(tc.input)
 				Expect(actual).To(Equal(tc.expected))
@@ -102,12 +106,12 @@ var _ = Describe("Kmsg", func() {
 	Describe("Parse", func() {
 		var (
 			input string
-			// message *kmsg.Message
+			message *kmsg.Message
 			err error
 		)
 
 		JustBeforeEach(func() {
-			_, err = kmsg.Parse(input)
+			message, err = kmsg.Parse(input)
 		})
 
 		Context("with empty string", func() {
@@ -139,6 +143,26 @@ var _ = Describe("Kmsg", func() {
 				})
 
 				Context("having enough fields in info section", func() {
+					Context("with proper fields", func() {
+						var expectedMessage *kmsg.Message
+
+						BeforeEach(func() {
+							input = "1,1,1,-,anything;message"
+							expectedMessage = &kmsg.Message{
+								Facility:       kmsg.FacilityKern,
+								Flag:           kmsg.FlagDefault,
+								Message:        "message",
+								Priority:       kmsg.PriorityAlert,
+								SequenceNumber: 1,
+								Timestamp:      time.Unix(int64(1*time.Microsecond), 0),
+							}
+						})
+
+						It("properly parses the fields", func() {
+							Expect(message).To(BeEquivalentTo(expectedMessage))
+						})
+					})
+
 					Context("with malformed prefix", func() {
 						Context("being a string", func() {
 							BeforeEach(func() {
@@ -176,7 +200,7 @@ var _ = Describe("Kmsg", func() {
 							input = "1,b,c,d,e;message"
 						})
 
-						It("fails", func () {
+						It("fails", func() {
 							Expect(err).To(HaveOccurred())
 						})
 					})
@@ -186,11 +210,10 @@ var _ = Describe("Kmsg", func() {
 							input = "1,1,c,d,e;message"
 						})
 
-						It("fails", func () {
+						It("fails", func() {
 							Expect(err).To(HaveOccurred())
 						})
 					})
-
 				})
 			})
 
