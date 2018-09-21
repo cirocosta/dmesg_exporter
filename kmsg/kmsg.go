@@ -35,16 +35,16 @@ const (
 	FacilityLpr
 	FacilityNews
 
-	FacilityUnknown	// custom facility used to delimite those that we know
+	FacilityUnknown // custom facility used to delimite those that we know
 )
 
-func IsValidFacility (facility uint8) (isValid bool) {
+func IsValidFacility(facility uint8) (isValid bool) {
 	isValid = (facility < uint8(FacilityUnknown))
 	return
 }
 
 type Message struct {
-	Priority          Priority
+	Priority       Priority
 	Facility       Facility
 	SequenceNumber int64
 	Timestamp      time.Time
