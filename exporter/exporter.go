@@ -7,6 +7,7 @@
 package exporter
 
 import (
+	"context"
 	"net"
 	"net/http"
 	"sync"
@@ -61,7 +62,7 @@ func (e *Exporter) init() (err error) {
 //
 // This is a blocking method - make sure you either make use of
 // goroutines to not block if needed.
-func (e *Exporter) Listen() (err error) {
+func (e *Exporter) Listen(ctx context.Context) (err error) {
 	e.once.Do(func() {
 		err = e.init()
 	})
@@ -80,19 +81,31 @@ func (e *Exporter) Listen() (err error) {
 		return
 	}
 
-	err = http.Serve(e.listener, nil)
-	if err != nil {
-		err = errors.Wrapf(err,
-			"failed listening on address %s",
-			e.ListenAddress)
-		return
+	doneChan := make(chan error, 1)
+
+	go func() {
+		defer close(doneChan)
+
+		err := http.Serve(e.listener, nil)
+		if err != nil {
+			doneChan <- errors.Wrapf(err,
+				"failed listening on address %s",
+				e.ListenAddress)
+			return
+		}
+	}()
+
+	select {
+	case err = <-doneChan:
+	case <-ctx.Done():
+		err = ctx.Err()
 	}
 
 	return
 }
 
-// Stop closes the tcp listener (if exists).
-func (e *Exporter) Stop() (err error) {
+// Close gracefully closes the tcp listener associated with it.
+func (e *Exporter) Close() (err error) {
 	if e.listener == nil {
 		return
 	}

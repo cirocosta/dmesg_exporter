@@ -2,6 +2,7 @@ package commands
 
 import (
 	"log"
+	"context"
 
 	"github.com/cirocosta/dmesg_exporter/exporter"
 )
@@ -18,7 +19,12 @@ func (c *start) Execute(args []string) (err error) {
 		Collectors:    nil,
 	}
 
-	err = promExporter.Listen()
+	ctx, cancel := context.WithCancel(context.Background())
+	go blockAndCancelOnSignal(cancel)
+
+	defer promExporter.Close()
+
+	err = promExporter.Listen(ctx)
 	if err != nil {
 		log.Fatalln(err)
 	}
