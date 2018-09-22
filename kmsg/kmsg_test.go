@@ -147,7 +147,7 @@ var _ = Describe("Kmsg", func() {
 						var expectedMessage *kmsg.Message
 
 						BeforeEach(func() {
-							input = "1,1,100,-,anything;message"
+							input = "1,1,100,-,anything;message\n\n"
 							expectedMessage = &kmsg.Message{
 								Facility:       kmsg.FacilityKern,
 								Flag:           kmsg.FlagDefault,

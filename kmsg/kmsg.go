@@ -140,7 +140,7 @@ func Parse(rawMsg string) (m *Message, err error) {
 	m = new(Message)
 
 	infoSection := splittedMessage[0]
-	m.Message = splittedMessage[1]
+	m.Message = strings.TrimSpace(splittedMessage[1])
 
 	splittedInfoSection := strings.SplitN(infoSection, ",", 5)
 	if len(splittedInfoSection) < 4 {
