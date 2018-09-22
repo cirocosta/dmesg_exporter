@@ -25,7 +25,7 @@ func NewReader(r io.Reader) (reader Reader) {
 	return
 }
 
-const readBufferSize = 1024
+const readBufferSize = 4096
 
 func (r *kmsgReader) Listen(ctx context.Context, messages chan<- *kmsg.Message) (errChan chan error) {
 	errChan = make(chan error, 1)

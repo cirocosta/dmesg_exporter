@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"log"
 	"context"
+	"log"
 
 	"github.com/cirocosta/dmesg_exporter/exporter"
 )
