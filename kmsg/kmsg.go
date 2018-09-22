@@ -74,7 +74,6 @@ type Message struct {
 	Facility       Facility
 	Flag           Flag
 	Message        string
-	Metadata       map[string]string
 	Priority       Priority
 	SequenceNumber int64
 	Timestamp      time.Time
