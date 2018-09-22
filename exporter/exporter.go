@@ -10,10 +10,8 @@ import (
 	"context"
 	"net"
 	"net/http"
-	"sync"
 
 	"github.com/pkg/errors"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -36,25 +34,7 @@ type Exporter struct {
 	// - /telemetry
 	TelemetryPath string
 
-	// Collectors holds a listen of collectors that are
-	// meant to send metrics.
-	Collectors []prometheus.Collector
-
-	once     sync.Once
 	listener net.Listener
-}
-
-func (e *Exporter) init() (err error) {
-	for _, collector := range e.Collectors {
-		err = prometheus.Register(collector)
-		if err != nil {
-			err = errors.Wrapf(err,
-				"failed to register collector")
-			return
-		}
-	}
-
-	return
 }
 
 // Listen initiates the HTTP server using the configurations
@@ -63,15 +43,6 @@ func (e *Exporter) init() (err error) {
 // This is a blocking method - make sure you either make use of
 // goroutines to not block if needed.
 func (e *Exporter) Listen(ctx context.Context) (err error) {
-	e.once.Do(func() {
-		err = e.init()
-	})
-	if err != nil {
-		err = errors.Wrapf(err,
-			"failed to initialize exporter")
-		return
-	}
-
 	http.Handle(e.TelemetryPath, promhttp.Handler())
 
 	e.listener, err = net.Listen("tcp", e.ListenAddress)

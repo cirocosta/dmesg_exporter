@@ -23,6 +23,32 @@ const (
 	PriorityDebug
 )
 
+func (p Priority) String() (s string) {
+	switch p {
+	case PriorityEmerg:
+		s = "emerg"
+	case PriorityAlert:
+		s = "alert"
+	case PriorityCrit:
+		s = "crit"
+	case PriorityErr:
+		s = "err"
+	case PriorityWarning:
+		s = "warning"
+	case PriorityNotice:
+		s = "notice"
+	case PriorityInfo:
+		s = "info"
+	case PriorityDebug:
+		s = "debug"
+	default:
+		s = "unknown"
+
+	}
+
+	return
+}
+
 type Facility uint8
 
 const (
@@ -37,6 +63,31 @@ const (
 
 	FacilityUnknown // custom facility used to delimite those that we know
 )
+
+func (f Facility) String() (s string) {
+	switch f {
+	case FacilityKern:
+		s = "kern"
+	case FacilityUser:
+		s = "user"
+	case FacilityMail:
+		s = "mail"
+	case FacilityDaemon:
+		s = "daemon"
+	case FacilityAuth:
+		s = "auth"
+	case FacilitySyslog:
+		s = "syslog"
+	case FacilityLpr:
+		s = "lpr"
+	case FacilityNews:
+		s = "news"
+	default:
+		s = "unknown"
+	}
+
+	return
+}
 
 type Flag byte
 

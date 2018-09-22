@@ -11,7 +11,7 @@ import (
 
 const kmsgDevice = "/dev/kmsg"
 
-type runOnce struct{
+type runOnce struct {
 	Tail bool `long:"tail" short:"t" description:"whether the reader should seek to the end"`
 }
 
@@ -29,13 +29,14 @@ func (c *runOnce) Execute(args []string) (err error) {
 		}
 	}
 
-	r := reader.NewReader(file)
-
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	go blockAndCancelOnSignal(cancel)
 
 	var (
 		messages = make(chan *kmsg.Message, 1)
+		r        = reader.NewReader(file)
 		errors   = r.Listen(ctx, messages)
 	)
 
