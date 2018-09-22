@@ -36,12 +36,10 @@ func (c *start) Execute(args []string) (err error) {
 	go blockAndCancelOnSignal(cancel)
 
 	var (
+		r                  = reader.NewReader(file)
 		exporterErrorsChan = make(chan error, 1)
 		messages           = make(chan *kmsg.Message, 1)
-
-		r              = reader.NewReader(file)
-		kmsgErrorsChan = r.Listen(ctx, messages)
-		promExporter   = exporter.Exporter{
+		promExporter       = exporter.Exporter{
 			ListenAddress: DmesgExporter.Start.ListenAddress,
 			TelemetryPath: DmesgExporter.Start.TelemetryPath,
 		}
@@ -54,6 +52,7 @@ func (c *start) Execute(args []string) (err error) {
 		)
 	)
 
+	kmsgErrorsChan := r.Listen(ctx, messages)
 	prometheus.MustRegister(counter)
 
 	defer promExporter.Close()
