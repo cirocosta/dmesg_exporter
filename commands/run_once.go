@@ -3,15 +3,24 @@ package commands
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/cirocosta/dmesg_exporter/kmsg"
 	"github.com/cirocosta/dmesg_exporter/reader"
 )
 
+const kmsgDevice = "/dev/kmsg"
+
 type runOnce struct{}
 
 func (c *runOnce) Execute(args []string) (err error) {
-	r := reader.NewReader()
+	file, err := os.Open(kmsgDevice)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	r := reader.NewReader(file)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	go blockAndCancelOnSignal(cancel)
@@ -26,6 +35,10 @@ func (c *runOnce) Execute(args []string) (err error) {
 		case err = <-errors:
 			return
 		case message := <-messages:
+			if message == nil {
+				return
+			}
+
 			fmt.Println(message.Message)
 		}
 	}

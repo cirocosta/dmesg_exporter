@@ -3,7 +3,6 @@ package reader
 import (
 	"context"
 	"io"
-	"os"
 	"syscall"
 
 	"github.com/cirocosta/dmesg_exporter/kmsg"
@@ -12,23 +11,15 @@ import (
 
 type Reader interface {
 	Listen(ctx context.Context, messages chan<- *kmsg.Message) (errors chan error)
-	Close() (err error)
 }
 
 type kmsgReader struct {
-	file *os.File
+	file io.Reader
 }
 
-func NewReader() (r Reader) {
-	file, err := os.Open("/dev/kmsg")
-	if err != nil {
-		err = errors.Wrapf(err,
-			"couldn't open kmsg file")
-		return
-	}
-
-	r = &kmsgReader{
-		file: file,
+func NewReader(r io.Reader) (reader Reader) {
+	reader = &kmsgReader{
+		file: r,
 	}
 
 	return
@@ -51,11 +42,6 @@ func (r *kmsgReader) Listen(ctx context.Context, messages chan<- *kmsg.Message) 
 		return
 	}()
 
-	return
-}
-
-func (r *kmsgReader) Close() (err error) {
-	err = r.file.Close()
 	return
 }
 
