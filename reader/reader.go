@@ -27,15 +27,15 @@ func NewReader(r io.Reader) (reader Reader) {
 
 const readBufferSize = 1024
 
-func (r *kmsgReader) Listen(ctx context.Context, messages chan<- *kmsg.Message) (errors chan error) {
-	errors = make(chan error, 1)
+func (r *kmsgReader) Listen(ctx context.Context, messages chan<- *kmsg.Message) (errChan chan error) {
+	errChan = make(chan error, 1)
 
 	go func() {
-		defer close(errors)
+		defer close(errChan)
 
 		err := r.consumeDevice(ctx, messages)
 		if err != nil {
-			errors <- err
+			errChan <- err
 			return
 		}
 
