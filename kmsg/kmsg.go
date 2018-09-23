@@ -167,7 +167,7 @@ func DecodePrefix(prefix uint8) (priority Priority, facility Facility) {
 //     .------------------------------------------. .------.
 //    |                                            |        |
 //    |	int	int      int      char, <ignore>   | string |
-//    priority, seq, timestamp_us,flag[,..........];<message>
+//    prefix  , seq, timestamp_us,flag[,..........];<message>
 //
 //
 // CONTINUATION:
