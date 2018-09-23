@@ -15,10 +15,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// ExporterConfig provides the configuration necessary to
-// instantiate a new Exporter via `NewExporter`.
 type Exporter struct {
-	// ListenAddress is the address used by prometheus
+	// ListenAddress is the full address used by prometheus
 	// to listen for scraping requests.
 	//
 	// Examples:
