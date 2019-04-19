@@ -1,4 +1,6 @@
-# dmesg_exporter - metrics from the kernel messages ring buffer
+# dmesg_exporter
+
+> A [Prometheus](https://prometheus.io) exporter that collects metrics from the [kernel messages ring buffer](https://www.kernel.org/doc/Documentation/ABI/testing/dev-kmsg).
 
 [![](https://hush-house.pivotal.io/api/v1/teams/main/pipelines/dmesg_exporter/badge)](https://hush-house.pivotal.io/teams/main/pipelines/dmesg_exporter)
 
