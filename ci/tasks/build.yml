@@ -9,7 +9,7 @@ params:
   REPOSITORY: cirocosta/dmesg_exporter
   TAG: latest
   CONTEXT: repository
-  TARGET: ~
+  TARGET: ""
 
 inputs:
 - name: repository

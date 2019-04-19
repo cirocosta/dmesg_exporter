@@ -34,10 +34,8 @@ jobs:
     public: true
     plan:
       - aggregate:
-        - get: repository
-          trigger: true
-        - get: version
-          trigger: true
+        - {get: repository, trigger: true}
+        - {get: version, trigger: true}
       - aggregate:
         - task: build-image
           privileged: true
