@@ -12,16 +12,6 @@ resources:
       uri: https://((github-token))@github.com/cirocosta/dmesg_exporter
       ignore_paths: [ ./VERSION ]
 
-  - name: builder-image
-    type: registry-image
-    source:
-      repository: cirocosta/builder
-
-  - name: builder-task
-    type: git
-    source:
-      uri: https://github.com/concourse/builder-task
-
   - name: container-image
     type: registry-image
     source:
@@ -42,28 +32,21 @@ resources:
 jobs:
   - name: build
     public: true
-    serial: true
     plan:
       - aggregate:
-        - get: builder-task
-        - get: builder-image
         - get: repository
           trigger: true
         - get: version
           trigger: true
       - aggregate:
         - task: build-image
-          image: builder-image
           privileged: true
-          input_mapping: {builder: repository}
-          file: builder-task/example.yml
+          file: repository/ci/tasks/build.yml
         - task: tests
-          image: builder-image
           privileged: true
           params: {TARGET: tests}
-          input_mapping: {builder: repository}
           output_mapping: {image: unused}
-          file: builder-task/example.yml
+          file: repository/ci/tasks/build.yml
       - put: container-image
         inputs: [image, version]
         get_params: {format: oci}
