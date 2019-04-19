@@ -53,12 +53,12 @@ jobs:
           trigger: true
       - aggregate:
         - task: build-image
-          image: builder-imager
+          image: builder-image
           privileged: true
           input_mapping: {builder: repository}
           file: builder-task/example.yml
         - task: tests
-          image: builder-imager
+          image: builder-image
           privileged: true
           params: {TARGET: tests}
           input_mapping: {builder: repository}
