@@ -1,0 +1,72 @@
+resource_types:
+- name: semver
+  type: registry-image
+  source:
+    repository: concourse/semver-resource
+
+
+resources:
+  - name: repository
+    type: git
+    source:
+      uri: https://((github-token))@github.com/cirocosta/dmesg_exporter
+      ignore_paths: [ ./VERSION ]
+
+  - name: builder-image
+    type: registry-image
+    source:
+      repository: cirocosta/builder
+
+  - name: builder-task
+    type: git
+    source:
+      uri: https://github.com/concourse/builder-task
+
+  - name: container-image
+    type: registry-image
+    source:
+      repository: cirocosta/dmesg_exporter
+      username: ((docker-user))
+      password: ((docker-password))
+
+  - name: version
+    type: semver
+    source:
+      driver: git
+      uri: https://((github-token))@github.com/cirocosta/dmesg_exporter
+      branch: master
+      file: ./VERSION
+      git_user: Ciro S. Costa <cscosta@pivotal.io>
+
+
+jobs:
+  - name: build
+    public: true
+    serial: true
+    plan:
+      - aggregate:
+        - get: builder-task
+        - get: builder-image
+        - get: repository
+          trigger: true
+        - get: version
+          trigger: true
+      - aggregate:
+        - task: build-image
+          image: builder-imager
+          privileged: true
+          input_mapping: {builder: repository}
+          file: builder-task/example.yml
+        - task: tests
+          image: builder-imager
+          privileged: true
+          params: {TARGET: tests}
+          input_mapping: {builder: repository}
+          output_mapping: {image: unused}
+          file: builder-task/example.yml
+      - put: container-image
+        inputs: [image, version]
+        get_params: {format: oci}
+        params:
+          image: image/image.tar
+          additional_tags: version/version
