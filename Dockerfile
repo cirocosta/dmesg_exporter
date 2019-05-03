@@ -17,10 +17,8 @@ FROM base AS builder
 	RUN set -x && \
 		go build \
 			-tags netgo -v -a \
-			-ldflags "-X main.version=$(cat ./VERSION) -extldflags \"-static\"" && \
-		mv \
-			./dmesg_exporter \
-			/usr/bin/dmesg_exporter
+			-o /usr/bin/dmesg_exporter \
+			-ldflags "-X main.version=$(cat ./VERSION) -extldflags \"-static\""
 
 
 FROM base AS tests
@@ -35,3 +33,5 @@ FROM alpine
 		--from=builder \
 		/usr/bin/dmesg_exporter \
 		/usr/bin/dmesg_exporter
+
+	ENTRYPOINT [ "/usr/bin/dmesg_exporter" ]

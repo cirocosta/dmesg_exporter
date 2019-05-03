@@ -6,3 +6,9 @@ fmt:
 
 test:
 	go test ./...
+
+image:
+	docker build -t dmesg_exporter .
+
+test-image:
+	docker build -t dmesg_exporter --target tests .
