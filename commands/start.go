@@ -13,7 +13,7 @@ import (
 type start struct {
 	TelemetryPath string `long:"path" default:"/" description:"path to serve metrics" env:"PATH"`
 	ListenAddress string `long:"address" default:":9000" description:"address to listen for prometheus scraping" env:"ADDRESS"`
-	NoTail        bool   `long:"no-tail" description:"disable seeking to the end when starting" env:"NO_TAIL"`
+	Tail          bool   `long:"tail" description:"seek to the end when starting" env:"TAIL"`
 }
 
 func (c *start) Execute(args []string) (err error) {
@@ -23,7 +23,7 @@ func (c *start) Execute(args []string) (err error) {
 	}
 	defer file.Close()
 
-	if !c.NoTail {
+	if c.Tail {
 		_, err = file.Seek(0, os.SEEK_END)
 		if err != nil {
 			return
