@@ -12,7 +12,7 @@ import (
 const kmsgDevice = "/dev/kmsg"
 
 type runOnce struct {
-	Tail bool `long:"tail" short:"t" description:"whether the reader should seek to the end"`
+	NoTail bool `long:"no-tail" description:"disable seeking to the end when starting" env:"NO_TAIL"`
 }
 
 func (c *runOnce) Execute(args []string) (err error) {
@@ -22,7 +22,7 @@ func (c *runOnce) Execute(args []string) (err error) {
 	}
 	defer file.Close()
 
-	if c.Tail {
+	if !c.NoTail {
 		_, err = file.Seek(0, os.SEEK_END)
 		if err != nil {
 			return
