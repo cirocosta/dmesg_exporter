@@ -1,0 +1,13 @@
+version: '3.7'
+
+services:
+  dmesg:
+    container_name: 'dmesg'
+    command: start
+    volumes:
+      - /dev/kmsg:/dev/kmsg
+    privileged: true
+    ports:
+      - '9000:9000'
+    image: dmesg_exporter
+    build: .

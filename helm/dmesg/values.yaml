@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: cirocosta/dmesg_exporter
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 nameOverride: ""
 fullnameOverride: ""

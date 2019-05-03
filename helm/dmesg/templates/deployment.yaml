@@ -26,6 +26,7 @@ spec:
           args:
            - start
            - --address=:80
+           - --path=/
           ports:
             - name: http
               containerPort: 80
@@ -38,6 +39,12 @@ spec:
             httpGet:
               path: /
               port: http
+          volumes:
+            - name: kmsg-device
+              hostPath:
+                path: /dev/kmsg
+          securityContext:
+            privileged: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

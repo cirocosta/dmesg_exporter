@@ -81,8 +81,6 @@ func (c *start) Execute(args []string) (err error) {
 				"priority": message.Priority.String(),
 				"facility": message.Facility.String(),
 			}).Inc()
-
-			// increase the counter
 		}
 	}
 
