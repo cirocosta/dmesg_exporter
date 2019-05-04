@@ -27,6 +27,7 @@ spec:
            - start
            - --address=:80
            - --path=/
+           - --tail
           ports:
             - name: http
               containerPort: 80
