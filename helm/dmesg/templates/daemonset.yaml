@@ -8,7 +8,6 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "dmesg.name" . }}
@@ -40,14 +39,17 @@ spec:
             httpGet:
               path: /
               port: http
-          volumes:
+          volumeMounts:
             - name: kmsg-device
-              hostPath:
-                path: /dev/kmsg
+              mountPath: /dev/kmsg
           securityContext:
             privileged: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: kmsg-device
+          hostPath:
+            path: /dev/kmsg
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -37,3 +37,33 @@ service:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "80"
+
+serviceMonitor:
+  enabled: true
+prometheusRule:
+  enabled: true
+  rules:
+  - alert: DMESGInfo
+    expr: increase(dmesg_logs{priority="info"}[5m]) > 50
+    for: 1m
+    labels:
+      severity: info
+    annotations:
+      summary: dmesg info on "{{ $labels.instance }}"
+      description: Kernel info reached more than 50
+  - alert: DMESGWarnings
+    expr: increase(dmesg_logs{priority="warning"}[5m]) > 20
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: dmesg warnings on "{{ $labels.instance }}"
+      description: Kernel warnings reached more than 20
+  - alert: DMESGErrors
+    expr: increase(dmesg_logs{priority="err"}[5m]) > 1
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: dmesg errors on "{{ $labels.instance }}"
+      description: Kernel errors
