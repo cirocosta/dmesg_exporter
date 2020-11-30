@@ -1,0 +1,22 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "dmesg.fullname" . }}-monitor
+  annotations:
+    app.kubernetes.io/name: {{ include "dmesg.name" . }}
+    helm.sh/chart: {{ include "dmesg.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  endpoints:
+  - port: http
+    scheme: http
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "dmesg.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
