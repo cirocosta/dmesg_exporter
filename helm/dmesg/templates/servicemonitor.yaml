@@ -5,7 +5,9 @@ metadata:
   name: {{ include "dmesg.fullname" . }}-monitor
   annotations:
     app.kubernetes.io/name: {{ include "dmesg.name" . }}
+    helm.sh/chart: {{ include "dmesg.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   endpoints:
   - port: http
